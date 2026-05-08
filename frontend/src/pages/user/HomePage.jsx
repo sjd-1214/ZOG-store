@@ -295,9 +295,10 @@ function HomePage() {
             {recentGames.map((game) => (
               <div
                 key={game.game_id}
-                className={`w-full rounded-[40px] overflow-hidden group relative 
-                                  transition-all duration-300 
-                                  bg-[#1A1A1C]/10 border border-white/10 cursor-pointer`}
+                className={`w-full rounded-[40px] overflow-hidden group relative
+                                  transition-all duration-300
+                                  bg-gradient-to-br from-[#1A1A2E]/95 to-[#16161F]/95 backdrop-blur-lg border border-white/20 cursor-pointer
+                                  hover:border-[#7C5DF9]/50 hover:shadow-xl hover:shadow-[#7C5DF9]/10`}
                 onMouseEnter={() => setHoveredCard(`game-${game.game_id}`)}
                 onMouseLeave={() => setHoveredCard(null)}
               >
@@ -461,10 +462,10 @@ function HomePage() {
             {allGames.map((game) => (
               <div
                 key={game.game_id}
-                className={`group relative rounded-3xl overflow-hidden  ${
+                className={`group relative rounded-3xl overflow-hidden bg-[#1E1E2E] backdrop-blur-md ${
                   hoveredCard === `all-game-${game.game_id}`
-                    ? 'ring-2 ring-[#7C5DF9] shadow shadow-[#7C5DF9]/20'
-                    : 'ring-1 ring-white/10 hover:ring-[#7C5DF9]/30 hover:bg-[#1A1A1A]'
+                    ? 'ring-2 ring-[#7C5DF9] shadow-lg shadow-[#7C5DF9]/30 bg-[#252537]'
+                    : 'ring-1 ring-[#7C5DF9]/30 hover:ring-[#7C5DF9]/50 hover:shadow-lg hover:shadow-[#7C5DF9]/20 hover:bg-[#232334]'
                 } transition-all duration-300 h-full flex flex-col cursor-pointer`}
                 onMouseEnter={() => setHoveredCard(`all-game-${game.game_id}`)}
                 onMouseLeave={() => setHoveredCard(null)}
