@@ -57,7 +57,7 @@ async function seed() {
       price: "29.99",
       platform: "PC",
       genre: "RPG",
-      gameicon: "https://cdn2.steamgriddb.com/icon/cd3afef9b8b89558cd56f3ea06b22c14/32/256x256.png",
+      gameicon: "/game-icons/witcher3.png",
       stock_quantity: 50,
     },
     {
@@ -67,7 +67,7 @@ async function seed() {
       price: "39.99",
       platform: "PC",
       genre: "Action",
-      gameicon: "https://cdn2.steamgriddb.com/icon/b9a25e422daac03190703fbb62801949/32/256x256.png",
+      gameicon: "/game-icons/rdr2.png",
       stock_quantity: 35,
     },
     {
@@ -77,7 +77,7 @@ async function seed() {
       price: "49.99",
       platform: "PC",
       genre: "RPG",
-      gameicon: "https://cdn2.steamgriddb.com/icon/46a89885ec689a498e0b5faa0a55cde1/32/256x256.png",
+      gameicon: "/game-icons/eldenring.png",
       stock_quantity: 40,
     },
     {
@@ -87,7 +87,7 @@ async function seed() {
       price: "59.99",
       platform: "PlayStation",
       genre: "Action",
-      gameicon: "https://cdn2.steamgriddb.com/icon/7845b20e58db57c0e6a4635a2a30e036/32/256x256.png",
+      gameicon: "/game-icons/godofwar.png",
       stock_quantity: 25,
     },
     {
@@ -97,7 +97,7 @@ async function seed() {
       price: "59.99",
       platform: "Nintendo",
       genre: "Adventure",
-      gameicon: "https://cdn2.steamgriddb.com/icon/2b399f498b8c7a3e67305a0c2b9bbb46/32/256x256.png",
+      gameicon: "/game-icons/zelda.png",
       stock_quantity: 30,
     },
     {
@@ -107,7 +107,7 @@ async function seed() {
       price: "34.99",
       platform: "PC",
       genre: "RPG",
-      gameicon: "https://cdn2.steamgriddb.com/icon/7fa732140f3b9a2e3f974bface0a1738/32/256x256.png",
+      gameicon: "/game-icons/cyberpunk.png",
       stock_quantity: 45,
     },
     {
@@ -117,7 +117,7 @@ async function seed() {
       price: "49.99",
       platform: "PlayStation",
       genre: "Sports",
-      gameicon: "https://cdn2.steamgriddb.com/icon/ad0a4fa31e21058ad6e5c275cf5e4a4e/32/256x256.png",
+      gameicon: "/game-icons/fifa24.png",
       stock_quantity: 60,
     },
     {
@@ -127,7 +127,7 @@ async function seed() {
       price: "39.99",
       platform: "Xbox",
       genre: "Shooter",
-      gameicon: "https://cdn2.steamgriddb.com/icon/b6b87f508b483bcae99aa76ca1508cba/32/256x256.png",
+      gameicon: "/game-icons/halo.png",
       stock_quantity: 20,
     },
     {
@@ -137,7 +137,7 @@ async function seed() {
       price: "19.99",
       platform: "PC",
       genre: "Sandbox",
-      gameicon: "https://cdn2.steamgriddb.com/icon/25b0340e02e25e97dd4bf1657e3dba94/32/256x256.png",
+      gameicon: "/game-icons/minecraft.png",
       stock_quantity: 100,
     },
     {
@@ -147,7 +147,7 @@ async function seed() {
       price: "44.99",
       platform: "Xbox",
       genre: "Racing",
-      gameicon: "https://cdn2.steamgriddb.com/icon/c635d74df40e13d6c498bb2eb55e7803/32/256x256.png",
+      gameicon: "/game-icons/forza.png",
       stock_quantity: 30,
     },
   ];
