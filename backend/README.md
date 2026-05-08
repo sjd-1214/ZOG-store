@@ -1,173 +1,320 @@
 # ZOG Store Backend
 
-Backend server for the ZOG Game Store application - a full-featured e-commerce platform for video games.
+Backend server for the ZOG Game Store application - a full-featured e-commerce platform for video games built with Node.js, Express, and MongoDB.
 
 ## Features
 
-- User authentication and authorization with role-based access control
-- Game catalog with search, filtering, and detailed game information
-- Shopping cart functionality with stock quantity validation
-- Order processing and history
-- Admin dashboard with sales analytics
-- User, product, and order management for administrators
+- 🔐 User authentication and authorization with session-based login
+- 🎮 Game catalog with search, filtering, and detailed game information
+- 🛒 Shopping cart functionality with stock quantity validation
+- 📦 Order processing and history tracking
+- 📊 Admin dashboard with statistics
+- 👥 User, game, and order management for administrators
+- 🔄 Auto-incrementing IDs for better readability
+- 🗑️ Soft delete functionality for games
+
+## Tech Stack
+
+- **Node.js** (v20+) - Runtime environment
+- **Express** (v5.1.0) - Web framework
+- **MongoDB** - NoSQL database
+- **Mongoose** (v9.6.1) - MongoDB ODM
+- **Express Session** (v1.18.1) - Session management
+- **bcrypt** (v5.1.1) - Password hashing
+- **CORS** (v2.8.5) - Cross-origin resource sharing
+- **connect-mongo** (v6.0.0) - MongoDB session store
 
 ## Project Structure
 
 ```
-ZOGStoreBackend/
+backend/
+├── models/              # Mongoose models
+│   ├── User.js          # User schema and model
+│   ├── Game.js          # Game schema and model
+│   ├── Cart.js          # Shopping cart schema
+│   ├── Order.js         # Order schema
+│   ├── OrderItem.js     # Order items schema
+│   ├── Payment.js       # Payment schema
+│   └── Counter.js       # Auto-increment counter schema
 ├── routes/              # API routes
 │   ├── admin.js         # Admin routes for store management
 │   ├── auth.js          # Authentication routes
 │   ├── cart.js          # Shopping cart routes
-│   ├── dashboard.js     # Dashboard and analytics routes
 │   ├── games.js         # Game catalog routes
 │   └── orders.js        # Order processing routes
-├── middleware/          # Express middleware functions
+├── middleware/          # Express middleware
 │   └── auth.js          # Authentication middleware
-├── database/            # Database documentation
-│   └── readme.md        # Database schema documentation
 ├── .env                 # Environment variables (not in repository)
 ├── db.js                # Database connection configuration
+├── seed.js              # Database seeding script
 ├── server.js            # Main application entry point
-└── README.md            # Project documentation
+├── package.json         # Dependencies and scripts
+└── README.md            # This file
 ```
 
-## Documentation
+## Installation
 
-### Authentication Flow
-
-1. **Registration**: Users register with username, email, and password
-
-   - Passwords are hashed with bcrypt before storage
-   - Default role is "user"
-
-2. **Login**: Users authenticate with email/username and password
-
-   - On successful login, a session is created
-   - Session contains user ID and role
-
-3. **Authorization**: Routes are protected based on user role
-   - `isAuthenticated` middleware verifies valid session
-   - `isAdmin` middleware checks for admin role
-
-### Database Schema
-
-The application uses a relational database with the following main tables:
-
-- **users**: Store user account information
-- **games**: Game catalog with details and pricing
-- **inventory**: Track stock quantities for each game
-- **cart**: Users' shopping cart items
-- **orders**: Order header information
-- **order_items**: Individual items in each order
-- **payments**: Payment information for orders
-
-### Error Handling
-
-The application implements centralized error handling with:
-
-- Appropriate HTTP status codes
-- Consistent error response format
-- Detailed logging for troubleshooting
-
-## API Endpoints
-
-### Games API (Public Access with Authentication)
-
-- `GET /games` - Get all games
-- `GET /games/filter?genre=X` - Filter games by genre
-- `GET /games/genres` - Get all genres
-- `GET /games/search?title=X` - Search games by title (includes inventory stock information)
-- `GET /games/game?gameId=X` - Get specific game details
-
-### Auth API
-
-- `POST /auth/signup` - Register a new user
-- `POST /auth/login` - Login user
-- `GET /auth/logout` - Logout user
-- `GET /auth/status` - Check authentication status
-
-### Cart API (Regular Users Only)
-
-- `GET /cart` - Get cart items
-- `GET /cart/count` - Get cart item count
-- `POST /cart/add` - Add item to cart
-- `POST /cart/update` - Update cart item quantity
-- `POST /cart/remove` - Remove cart item
-
-### Orders API (Regular Users Only)
-
-- `POST /orders/create` - Create a new order
-- `GET /orders` - Get user orders
-- `GET /orders/search?orderId=X` - Search order by ID
-
-### Dashboard API (Admin Only)
-
-- `GET /dashboard/stats` - Get overall statistics (users, games, orders, sales)
-- `GET /dashboard/top-games?limit=X` - Get top selling games
-
-### Admin API (Admin Only)
-
-- Game Management
-
-  - `POST /admin/games/insert` - Add a new game
-  - `PUT /admin/games/update?gameId=X` - Update game details
-  - `DELETE /admin/games/delete?gameId=X` - Delete a game
-
-- Inventory Management
-
-  - `GET /admin/inventory` - Get all inventory
-  - `PUT /admin/inventory?gameId=X` - Update game inventory
-
-- Order Management
-
-  - `GET /admin/orders` - Get all orders with details
-  - `GET /admin/orders/search?orderId=X` - Search for an order by ID
-  - `PUT /admin/orders/status?orderId=X` - Update order status
-  - `DELETE /admin/orders?orderId=X` - Delete an order
-
-- User Management
-  - `GET /admin/users` - Get all users
-  - `GET /admin/users/search?query=X` - Search users by username or email
-  - `PUT /admin/users?userId=X` - Update user information
-  - `PUT /admin/users/password?userId=X` - Update user password
-  - `DELETE /admin/users?userId=X` - Delete a user
-
-## Role-Based Access
-
-- Regular Users: Can browse games, add to cart, place orders, and view order history
-- Admin Users: Can access dashboard, manage games, inventory, orders, and user roles
-
-## Setup
-
-1. Clone the repository
-2. Install dependencies:
-   ```
+1. **Install dependencies**
+   ```bash
    npm install
    ```
-3. Create a `.env` file with the following variables:
-   ```
+
+2. **Create `.env` file**
+   ```env
+   MONGODB_URI=mongodb://localhost:27017/gamestore
+   SESSION_SECRET=your-secret-key-here
    PORT=3000
-   DB_HOST=localhost
-   DB_PORT=3306
-   DB_USER=your_db_user
-   DB_PASSWORD=your_db_password
-   DB_NAME=gamestore
-   KEY=your_session_secret_key
    ```
-4. Start the server:
+
+3. **Seed the database** (optional - adds sample data)
+   ```bash
+   node seed.js
    ```
+
+4. **Start the server**
+   ```bash
    npm start
    ```
+   
    For development with auto-reload:
-   ```
+   ```bash
    npm run dev
    ```
 
-## Technologies Used
+The server will run on `http://localhost:3000`
 
-- Node.js
-- Express.js
-- MySQL
-- bcrypt for password hashing
-- express-session for authentication
+## Default Credentials (After Seeding)
+
+**Admin Account:**
+- Email: `admin@zogstore.com`
+- Password: `admin123`
+
+**User Account:**
+- Email: `john@example.com`
+- Password: `user123`
+
+## API Documentation
+
+### Authentication Routes (`/auth`)
+
+All routes except authentication require a valid session.
+
+| Method | Endpoint | Description | Access |
+|--------|----------|-------------|--------|
+| POST | `/auth/signup` | Register new user | Public |
+| POST | `/auth/login` | User login | Public |
+| POST | `/auth/logout` | User logout | Authenticated |
+| GET | `/auth/check` | Check authentication status | Authenticated |
+
+### Games Routes (`/games`)
+
+| Method | Endpoint | Description | Access |
+|--------|----------|-------------|--------|
+| GET | `/games` | Get all games | Authenticated |
+| GET | `/games/game?gameId=:id` | Get single game details | Authenticated |
+| GET | `/games/search?title=:query` | Search games by title | Authenticated |
+| GET | `/games/filter?genre=:genre` | Filter games by genre | Authenticated |
+| GET | `/games/genres` | Get all available genres | Authenticated |
+
+### Cart Routes (`/cart`)
+
+| Method | Endpoint | Description | Access |
+|--------|----------|-------------|--------|
+| GET | `/cart` | Get user's cart items | Authenticated |
+| GET | `/cart/count` | Get cart item count | Authenticated |
+| POST | `/cart/add` | Add item to cart | Authenticated |
+| PUT | `/cart/update/:itemId` | Update cart item quantity | Authenticated |
+| DELETE | `/cart/remove/:itemId` | Remove item from cart | Authenticated |
+
+**Request Body for `/cart/add`:**
+```json
+{
+  "gameId": 1,
+  "quantity": 2
+}
+```
+
+### Orders Routes (`/orders`)
+
+| Method | Endpoint | Description | Access |
+|--------|----------|-------------|--------|
+| POST | `/orders/create` | Create new order from cart | Authenticated |
+| GET | `/orders` | Get user's order history | Authenticated |
+| GET | `/orders/:orderId` | Get specific order details | Authenticated |
+
+### Admin Routes (`/admin`)
+
+All admin routes require authentication AND admin role.
+
+**Statistics:**
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/admin/stats` | Get dashboard statistics |
+
+**Game Management:**
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/admin/games` | Add new game |
+| PUT | `/admin/games/:id` | Update game details |
+| DELETE | `/admin/games/:id` | Delete game (soft delete) |
+
+**Request Body for adding game:**
+```json
+{
+  "title": "Game Title",
+  "description": "Game description",
+  "price": "49.99",
+  "platform": "PC",
+  "genre": "RPG",
+  "gameicon": "/game-icons/game.png",
+  "stock_quantity": 50
+}
+```
+
+**Order Management:**
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/admin/orders` | Get all orders |
+| PUT | `/admin/orders/:id` | Update order status |
+
+**User Management:**
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/admin/users` | Get all users |
+| PUT | `/admin/users/:id` | Update user role |
+
+## Database Schema
+
+### User Model
+```javascript
+{
+  user_id: Number (auto-increment),
+  username: String (unique),
+  email: String (unique),
+  password: String (hashed),
+  role: String (enum: ["user", "admin"]),
+  created_at: Date
+}
+```
+
+### Game Model
+```javascript
+{
+  game_id: Number (auto-increment),
+  title: String,
+  description: String,
+  price: Decimal,
+  platform: String,
+  genre: String,
+  gameicon: String (image path),
+  stock_quantity: Number,
+  is_deleted: Boolean,
+  created_at: Date
+}
+```
+
+### Cart Model
+```javascript
+{
+  cart_id: Number (auto-increment),
+  user_id: Number (ref: User),
+  items: [{
+    game_id: Number (ref: Game),
+    quantity: Number
+  }]
+}
+```
+
+### Order Model
+```javascript
+{
+  order_id: Number (auto-increment),
+  user_id: Number (ref: User),
+  total_amount: Decimal,
+  status: String (enum: ["pending", "completed", "cancelled"]),
+  items: [{
+    game_id: Number (ref: Game),
+    quantity: Number,
+    price: Decimal
+  }],
+  created_at: Date
+}
+```
+
+## Middleware
+
+### Authentication Middleware
+- **isAuthenticated**: Verifies user session exists
+- **isAdmin**: Verifies user has admin role (requires isAuthenticated)
+
+Usage:
+```javascript
+router.get('/protected', isAuthenticated, (req, res) => {
+  // Route handler
+});
+
+router.get('/admin-only', isAuthenticated, isAdmin, (req, res) => {
+  // Admin route handler
+});
+```
+
+## Environment Variables
+
+| Variable | Description | Example |
+|----------|-------------|---------|
+| MONGODB_URI | MongoDB connection string | `mongodb://localhost:27017/gamestore` |
+| SESSION_SECRET | Secret key for session encryption | `your-secret-key-123` |
+| PORT | Server port number | `3000` |
+
+## Error Handling
+
+The API uses standard HTTP status codes:
+- `200` - Success
+- `201` - Created
+- `400` - Bad Request
+- `401` - Unauthorized
+- `403` - Forbidden
+- `404` - Not Found
+- `500` - Internal Server Error
+
+Error responses follow this format:
+```json
+{
+  "error": "Error message",
+  "message": "Detailed error description"
+}
+```
+
+## Security Features
+
+- Password hashing with bcrypt (10 salt rounds)
+- Session-based authentication
+- HTTP-only session cookies
+- CORS configuration for frontend
+- Role-based access control
+- Input validation on all routes
+
+## Development
+
+```bash
+# Install dependencies
+npm install
+
+# Run in development mode (with nodemon)
+npm run dev
+
+# Run in production mode
+npm start
+
+# Seed database with sample data
+node seed.js
+```
+
+## Scripts
+
+- `npm start` - Start the server
+- `npm run dev` - Start with nodemon (auto-reload)
+
+## License
+
+ISC
