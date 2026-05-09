@@ -1,7 +1,3 @@
-/********************************************************
- * LoginPage Component
- * User authentication form with client-side validation
- ********************************************************/
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import logo from '../assets/logo.svg';
@@ -9,7 +5,6 @@ import overlay from '../assets/overlay.png';
 import { Loader } from 'lucide-react';
 
 function LoginPage() {
-  // Navigation and state
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
@@ -18,7 +13,6 @@ function LoginPage() {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  // Check if user is already authenticated
   useEffect(() => {
     const checkAuth = async () => {
       try {
@@ -30,7 +24,6 @@ function LoginPage() {
         if (response.ok) {
           const data = await response.json();
 
-          // If already authenticated, redirect to appropriate page
           if (data.isAuthenticated) {
             if (data.user.role === 'admin') {
               navigate('/admin');
@@ -47,7 +40,6 @@ function LoginPage() {
     checkAuth();
   }, [navigate]);
 
-  // Update form state on input change
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -55,7 +47,6 @@ function LoginPage() {
     });
   };
 
-  // Process login form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -77,10 +68,8 @@ function LoginPage() {
         throw new Error(data.message || 'Login failed');
       }
 
-      // Store user data in localStorage
       localStorage.setItem('user', JSON.stringify(data.user));
 
-      // Check user role and redirect accordingly
       if (data.user.role === 'admin') {
         navigate('/admin');
       } else {

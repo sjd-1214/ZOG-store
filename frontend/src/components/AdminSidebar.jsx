@@ -1,7 +1,3 @@
-/********************************************************
- * AdminSidebar Component
- * Navigation sidebar for admin section
- ********************************************************/
 import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
@@ -19,27 +15,20 @@ import logo from '../assets/logo.svg';
 import overlay from '../assets/overlay.png';
 
 function AdminSidebar() {
-  // Router and state
   const location = useLocation();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [userData, setUserData] = useState(null);
 
-  /********************************************************
-   * Effects and Initialization
-   ********************************************************/
   useEffect(() => {
-    // Load user data from storage
     const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
     if (storedUser) {
       setUserData(storedUser);
     }
 
-    // Close mobile menu on route change
     setIsMobileMenuOpen(false);
 
-    // Handle responsive behavior
     const handleResize = () => {
       if (window.innerWidth < 1024) {
         setIsOpen(false);
@@ -48,7 +37,7 @@ function AdminSidebar() {
       }
     };
 
-    handleResize(); // Initial check
+    handleResize();
     window.addEventListener('resize', handleResize);
 
     return () => {
@@ -56,12 +45,10 @@ function AdminSidebar() {
     };
   }, [location.pathname]);
 
-  // Check if a path is currently active
   const isActive = (path) => {
     return location.pathname === path;
   };
 
-  // Handle user logout
   const handleLogout = async () => {
     try {
       await fetch('http://localhost:3000/auth/logout', {
@@ -78,7 +65,6 @@ function AdminSidebar() {
     }
   };
 
-  // Navigation menu items
   const menuItems = [
     {
       name: 'Dashboard',
@@ -109,7 +95,6 @@ function AdminSidebar() {
 
   return (
     <>
-      {/* Sidebar */}
       <div
         className={`fixed inset-y-0 left-0 z-50 w-64  backdrop-blur-md text-white transform transition-transform duration-300 ease-in-out ${
           isOpen || isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
@@ -121,7 +106,6 @@ function AdminSidebar() {
           backgroundBlendMode: 'overlay',
         }}
       >
-        {/* Logo and Header */}
         <div className="p-4 flex justify-between items-center border-b border-white/10">
           <Link to="/admin" className="flex items-center gap-2">
             <img
@@ -133,7 +117,6 @@ function AdminSidebar() {
           </Link>
         </div>
 
-        {/* User Info */}
         <div className="p-4 border-b border-white/10">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-[#7C5DF9]/20 flex items-center justify-center text-[#7C5DF9] font-bold">
@@ -146,7 +129,6 @@ function AdminSidebar() {
           </div>
         </div>
 
-        {/* Navigation Links */}
         <nav className="p-4">
           <ul className="space-y-2">
             {menuItems.map((item) => (
@@ -167,7 +149,6 @@ function AdminSidebar() {
           </ul>
         </nav>
 
-        {/* Logout Button */}
         <div className="absolute bottom-0 left-0 right-0 p-4">
           <button
             onClick={handleLogout}

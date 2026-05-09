@@ -6,12 +6,7 @@ import Navbar from '../../components/Navbar';
 import useAuthCheck from '../../hooks/useAuthCheck';
 import Loader from '../../components/Loader';
 
-/********************************************************
- * HomePage Component
- * Main landing page showing game catalog with search and filtering
- ********************************************************/
 function HomePage() {
-  // State for UI interactions and data
   const [hoveredCard, setHoveredCard] = useState(null);
   const [recentGames, setRecentGames] = useState([]);
   const [allGames, setAllGames] = useState([]);
@@ -26,10 +21,8 @@ function HomePage() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Authentication check
   useAuthCheck();
 
-  // Get current cart item count
   const fetchCartCount = async () => {
     try {
       const response = await fetch('http://localhost:3000/cart/count', {
@@ -45,25 +38,20 @@ function HomePage() {
     }
   };
 
-  // Update cart count on component mount
   useEffect(() => {
     fetchCartCount();
   }, []);
 
-  // Handle game card click to show details
   const navigateToGameDetails = (game) => {
     navigate(`/game/${game.game_id}`, { state: { game } });
   };
 
-  // Process URL search parameters
   useEffect(() => {
     const query = new URLSearchParams(location.search);
     const search = query.get('search');
     const reset = query.get('reset');
 
-    // Check if search results were passed in the location state
     if (location.state?.searchResults && location.state?.searchTerm) {
-      // Use the search results and term that were passed via navigation state
       setSearchTerm(location.state.searchTerm);
       setSearchResults(location.state.searchResults);
       setAllGames(location.state.searchResults);
@@ -71,19 +59,16 @@ function HomePage() {
       setIsSearching(false);
       setLoading(false);
 
-      // Clear the state to prevent re-using the same results on page refresh
       window.history.replaceState({}, document.title);
     } else if (search) {
       setSearchTerm(search);
       setIsSearching(true);
       handleSearchWithTerm(search);
     } else if (reset === 'true') {
-      // Reset the game state to show all games
       setSearchTerm('');
       setIsSearching(false);
       setActiveGenre('All');
 
-      // Fetch all games
       setLoading(true);
       fetch('http://localhost:3000/games', {
         credentials: 'include',
@@ -106,7 +91,6 @@ function HomePage() {
     }
   }, [location.search, location.state]);
 
-  // Load available game genres
   useEffect(() => {
     const fetchGenres = async () => {
       try {
@@ -126,7 +110,6 @@ function HomePage() {
     fetchGenres();
   }, []);
 
-  // Apply genre filter to game list
   const filterGamesByGenre = async (genre) => {
     setLoading(true);
     setActiveGenre(genre);
@@ -157,7 +140,6 @@ function HomePage() {
     }
   };
 
-  // Initial data loading
   useEffect(() => {
     const fetchGames = async () => {
       try {
@@ -181,7 +163,6 @@ function HomePage() {
     fetchGames();
   }, []);
 
-  // Search functionality
   const handleSearchWithTerm = async (term) => {
     if (!term.trim()) return;
 
@@ -214,14 +195,12 @@ function HomePage() {
     }
   };
 
-  // Reset search to show all games
   const clearSearch = async () => {
     setSearchTerm('');
     setIsSearching(false);
     setActiveGenre('All');
     setLoading(true);
 
-    // Clear search parameter from URL
     navigate('/', { replace: true });
 
     try {
@@ -243,7 +222,6 @@ function HomePage() {
     }
   };
 
-  // Show loading indicator while data is being fetched
   if (loading) {
     return (
       <div
@@ -264,12 +242,9 @@ function HomePage() {
         backgroundPosition: 'center',
       }}
     >
-      {/* Navbar with Cart Count - removed genre filter */}
       <Navbar cartCount={cartCount} />
 
-      {/* Hero Section - Enhanced Recent Uploads */}
       <section className="pt-16 pb-24 px-4 max-w-7xl mx-auto relative">
-        {/* Decorative background elements */}
         <div className="absolute top-20 -left-64 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl"></div>
         <div className="absolute bottom-20 -right-64 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"></div>
 
@@ -302,7 +277,6 @@ function HomePage() {
                 onMouseEnter={() => setHoveredCard(`game-${game.game_id}`)}
                 onMouseLeave={() => setHoveredCard(null)}
               >
-                {/* Decorative card elements */}
                 <div
                   className="absolute -top-24 -right-24 w-48 h-48 bg-[#7C5DF9]/10 rounded-full blur-xl 
                                   group-hover:bg-[#7C5DF9]/20 transition-all duration-500 overflow-visible"
@@ -384,7 +358,6 @@ function HomePage() {
         )}
       </section>
 
-      {/* All Games Section */}
       <section className="py-12 px-4 max-w-7xl mx-auto">
         <div className="mb-2 flex justify-between items-end">
           <h2 className="text-3xl font-bold">
@@ -411,7 +384,6 @@ function HomePage() {
               : `Explore our selection of ${activeGenre.toLowerCase()} titles curated just for you.`}
         </p>
 
-        {/* Genre Tabs - New Addition */}
         <div className="mb-8 overflow-x-auto no-scrollbar">
           <div className="flex space-x-2 min-w-max pb-2">
             <button

@@ -1,14 +1,9 @@
-/********************************************************
- * Navbar Component
- * Main navigation bar with search and user controls
- ********************************************************/
 import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import logo from '../assets/logo.svg';
 import { Search, ShoppingCart, X, Package, LogOut } from 'lucide-react';
 
 function Navbar({ cartCount = 0 }) {
-  // State management
   const [searchTerm, setSearchTerm] = useState('');
   const [isSearchPopupOpen, setIsSearchPopupOpen] = useState(false);
   const searchInputRef = useRef(null);
@@ -16,15 +11,10 @@ function Navbar({ cartCount = 0 }) {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Check if a given path is active
   const isActive = (path) => {
     return location.pathname === path;
   };
 
-  /********************************************************
-   * Event Handlers and Effects
-   ********************************************************/
-  // Close menus when clicking outside
   useEffect(() => {
     function handleClickOutside(event) {
       if (searchPopupRef.current && !searchPopupRef.current.contains(event.target)) {
@@ -38,7 +28,6 @@ function Navbar({ cartCount = 0 }) {
     };
   }, []);
 
-  // Handle user logout
   const handleLogout = async () => {
     try {
       const response = await fetch('http://localhost:3000/auth/logout', {
@@ -60,13 +49,11 @@ function Navbar({ cartCount = 0 }) {
     }
   };
 
-  // Process search form submission
   const handleSearch = async (e) => {
     e.preventDefault();
     if (!searchTerm.trim()) return;
 
     try {
-      // Call the search API
       const response = await fetch(
         `http://localhost:3000/games/search?title=${encodeURIComponent(searchTerm)}`,
         {
@@ -80,7 +67,6 @@ function Navbar({ cartCount = 0 }) {
 
       if (response.ok) {
         const searchResults = await response.json();
-        // Navigate to search results page with the data
         navigate('/home', {
           state: { searchResults, searchTerm },
           search: `?search=${encodeURIComponent(searchTerm)}`,
@@ -95,7 +81,6 @@ function Navbar({ cartCount = 0 }) {
     setIsSearchPopupOpen(false);
   };
 
-  // Toggle mobile search popup
   const toggleSearchPopup = () => {
     setIsSearchPopupOpen(!isSearchPopupOpen);
     if (!isSearchPopupOpen) {
@@ -107,7 +92,6 @@ function Navbar({ cartCount = 0 }) {
     }
   };
 
-  // Clear search and reset results
   const clearSearch = () => {
     setSearchTerm('');
     navigate('/home?reset=true', { replace: true });
@@ -127,7 +111,6 @@ function Navbar({ cartCount = 0 }) {
             </Link>
           </div>
 
-          {/* Desktop Search Bar */}
           <div className="relative group hidden md:block">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <Search className="h-4 w-4 text-white/50 group-focus-within:text-[#7C5DF9]" />
@@ -156,7 +139,6 @@ function Navbar({ cartCount = 0 }) {
         </div>
 
         <div className="flex gap-3 items-center">
-          {/* Mobile Search Button */}
           <button
             onClick={toggleSearchPopup}
             className="md:hidden h-10 w-10 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors cursor-pointer"
@@ -164,7 +146,6 @@ function Navbar({ cartCount = 0 }) {
             <Search className="h-5 w-5 text-white" />
           </button>
 
-          {/* Orders Icon - Active State when on Orders page */}
           <Link
             to="/orders"
             className={`h-10 w-10 flex items-center justify-center rounded-xl border transition-colors cursor-pointer ${
@@ -177,7 +158,6 @@ function Navbar({ cartCount = 0 }) {
             <Package className="h-5 w-5" />
           </Link>
 
-          {/* Cart Icon - Active State when on Cart page */}
           <Link
             to="/cart"
             className={`relative h-10 w-10 flex items-center justify-center rounded-xl border transition-all duration-300 cursor-pointer ${
@@ -194,7 +174,6 @@ function Navbar({ cartCount = 0 }) {
             )}
           </Link>
 
-          {/* Logout Button */}
           <button
             onClick={handleLogout}
             className="h-10 w-10 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors cursor-pointer"
@@ -205,7 +184,6 @@ function Navbar({ cartCount = 0 }) {
         </div>
       </nav>
 
-      {/* Mobile Search Popup */}
       {isSearchPopupOpen && (
         <div
           className="fixed inset-0 bg-black/80 backdrop-blur-md z-999 flex items-start justify-center p-4 md:hidden"

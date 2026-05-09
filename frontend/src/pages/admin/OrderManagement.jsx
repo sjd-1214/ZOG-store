@@ -1,7 +1,3 @@
-/********************************************************
- * OrderManagement Component
- * Admin interface for viewing and managing customer orders
- ********************************************************/
 import React, { useState, useEffect } from 'react';
 import {
   Search,
@@ -32,10 +28,8 @@ import Loader from '../../components/Loader';
 import Toast from '../../components/Toast';
 
 function OrderManagement() {
-  // Check admin authentication
   useAuthCheck();
 
-  // State management
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -55,18 +49,12 @@ function OrderManagement() {
   const [showStatusModal, setShowStatusModal] = useState(false);
   const [newStatus, setNewStatus] = useState('');
 
-  // Order status options
   const validStatuses = ['pending', 'processing', 'shipped', 'delivered', 'canceled'];
 
-  /********************************************************
-   * Data Loading and Filtering
-   ********************************************************/
-  // Load orders on component mount
-  useEffect(() => {
+    useEffect(() => {
     fetchOrders();
   }, []);
 
-  // Search for orders by ID
   const searchOrderById = async (orderId) => {
     setLoading(true);
     setError(null);
@@ -87,7 +75,6 @@ function OrderManagement() {
 
       const data = await response.json();
 
-      // The API now returns an object with an order property instead of an array
       if (data.order) {
         setFilteredOrders([data.order]); // Wrap in array to maintain component compatibility
       } else {
@@ -102,11 +89,9 @@ function OrderManagement() {
     }
   };
 
-  // Apply filters to orders
   useEffect(() => {
     if (!orders.length) return;
 
-    // If searching by ID, use the API
     if (searchTerm) {
       searchOrderById(searchTerm.trim());
       return;
@@ -114,7 +99,6 @@ function OrderManagement() {
 
     let filtered = [...orders];
 
-    // Apply status filter
     if (statusFilter !== 'All') {
       filtered = filtered.filter(
         (order) => order.status.toLowerCase() === statusFilter.toLowerCase()
@@ -124,7 +108,6 @@ function OrderManagement() {
     setFilteredOrders(filtered);
   }, [searchTerm, statusFilter, orders]);
 
-  // Fetch all orders
   const fetchOrders = async () => {
     setLoading(true);
     setError(null);
@@ -149,23 +132,17 @@ function OrderManagement() {
     }
   };
 
-  /********************************************************
-   * UI Helper Functions
-   ********************************************************/
-  // Show toast notification
-  const showToast = (message, type = 'success') => {
+    const showToast = (message, type = 'success') => {
     setToast({ visible: true, message, type });
     setTimeout(() => {
       setToast({ visible: false, message: '', type: 'success' });
     }, 3000);
   };
 
-  // Hide toast notification
   const closeToast = () => {
     setToast((prev) => ({ ...prev, visible: false }));
   };
 
-  // Format date for display
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleString(undefined, {
       year: 'numeric',
@@ -176,7 +153,6 @@ function OrderManagement() {
     });
   };
 
-  // Format currency for display
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -184,7 +160,6 @@ function OrderManagement() {
     }).format(amount);
   };
 
-  // Get CSS class for status badge
   const getStatusBadge = (status) => {
     switch (status?.toLowerCase()) {
       case 'pending':
@@ -202,7 +177,6 @@ function OrderManagement() {
     }
   };
 
-  // Get icon for order status
   const getStatusIcon = (status) => {
     switch (status?.toLowerCase()) {
       case 'pending':
@@ -220,16 +194,11 @@ function OrderManagement() {
     }
   };
 
-  /********************************************************
-   * Order Management Functions
-   ********************************************************/
-  // Show delete confirmation
-  const confirmDelete = (order) => {
+    const confirmDelete = (order) => {
     setOrderToDelete(order);
     setShowDeleteModal(true);
   };
 
-  // Delete an order
   const handleDeleteConfirm = async () => {
     if (!orderToDelete) return;
 
@@ -250,25 +219,18 @@ function OrderManagement() {
         throw new Error('Failed to delete order');
       }
 
-      // Process the response if needed
       try {
-        // We parse the JSON but don't need to use it since we're just
-        // confirming the deletion was successful
         await response.json();
       } catch (parseError) {
         console.warn('Could not parse JSON response:', parseError);
-        // Continue execution since the delete operation was successful
       }
 
-      // Remove the deleted order from state
       setOrders(orders.filter((order) => order.order_id !== orderToDelete.order_id));
 
-      // Also update filtered orders
       setFilteredOrders(
         filteredOrders.filter((order) => order.order_id !== orderToDelete.order_id)
       );
 
-      // Show success toast
       showToast(`Order #${orderToDelete.order_id} was successfully deleted`, 'success');
     } catch (error) {
       console.error('Error deleting order:', error);
@@ -280,14 +242,12 @@ function OrderManagement() {
     }
   };
 
-  // Show status change modal
   const openStatusChangeModal = (order) => {
     setStatusChangeOrder(order);
     setNewStatus(order.status.toLowerCase());
     setShowStatusModal(true);
   };
 
-  // Update order status
   const handleStatusChange = async () => {
     if (!statusChangeOrder || !newStatus) return;
 
@@ -312,14 +272,12 @@ function OrderManagement() {
         throw new Error(data.message || 'Failed to update order status');
       }
 
-      // Update the order status in the state
       setOrders(
         orders.map((order) =>
           order.order_id === statusChangeOrder.order_id ? { ...order, status: newStatus } : order
         )
       );
 
-      // Show success toast
       showToast(`Order #${statusChangeOrder.order_id} status updated to ${newStatus}`, 'success');
     } catch (error) {
       console.error('Error updating order status:', error);
@@ -331,7 +289,6 @@ function OrderManagement() {
     }
   };
 
-  // Expand/collapse order details
   const toggleOrderDetails = (orderId) => {
     setShowOrderDetails(showOrderDetails === orderId ? null : orderId);
   };
@@ -345,13 +302,10 @@ function OrderManagement() {
         backgroundPosition: 'center',
       }}
     >
-      {/* Mobile Redirect */}
       <MobileAdminRedirect />
 
-      {/* Admin Sidebar */}
       <AdminSidebar />
 
-      {/* Toast Component */}
       <Toast
         visible={toast.visible}
         message={toast.message}
@@ -359,10 +313,8 @@ function OrderManagement() {
         onClose={closeToast}
       />
 
-      {/* Main Content */}
       <div className="lg:ml-64 transition-all duration-300">
         <div className="p-4 md:p-8">
-          {/* Delete Confirmation Modal */}
           {showDeleteModal && (
             <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
               <div className="bg-[#1A1A1C] rounded-xl p-5 max-w-sm w-full shadow-xl border border-white/10">
@@ -401,7 +353,6 @@ function OrderManagement() {
             </div>
           )}
 
-          {/* Status Change Modal */}
           {showStatusModal && (
             <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
               <div className="bg-[#1A1A1C] rounded-xl p-5 max-w-sm w-full shadow-xl border border-white/10">
@@ -467,16 +418,13 @@ function OrderManagement() {
             </div>
           )}
 
-          {/* Header */}
           <header className="mb-8">
             <h1 className="text-2xl font-bold">Order Management</h1>
             <p className="text-gray-400">View and manage customer orders</p>
           </header>
 
-          {/* Search and Filter Bar */}
           <div className="bg-white/5 border border-white/10 rounded-3xl p-4 mb-6">
             <div className="flex flex-col md:flex-row gap-4">
-              {/* Search Input */}
               <div className="relative flex-grow">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <Search size={16} className="text-gray-400" />
@@ -501,7 +449,6 @@ function OrderManagement() {
                 </div>
               </div>
 
-              {/* Status Filter Dropdown */}
               <div className="min-w-[160px]">
                 <select
                   value={statusFilter}
@@ -523,7 +470,6 @@ function OrderManagement() {
                 </select>
               </div>
 
-              {/* Refresh Button */}
               <button
                 onClick={fetchOrders}
                 className="px-4 py-2 bg-white/10 hover:bg-white/15 rounded-xl flex items-center gap-2 transition-colors cursor-pointer"
@@ -534,7 +480,6 @@ function OrderManagement() {
             </div>
           </div>
 
-          {/* Error Message */}
           {error && (
             <div className="bg-red-500/20 border border-red-500/30 rounded-xl p-4 mb-6 text-center">
               <p className="text-red-200 flex items-center justify-center gap-2">
@@ -550,14 +495,12 @@ function OrderManagement() {
             </div>
           )}
 
-          {/* Loading Indicator */}
           {loading && (
             <div className="flex justify-center items-center h-64">
               <Loader size="large" logoSize="small" />
             </div>
           )}
 
-          {/* Orders Table */}
           {!loading && !error && (
             <div className="bg-white/5 border border-white/10 rounded-3xl overflow-hidden">
               {filteredOrders.length === 0 ? (
@@ -685,12 +628,10 @@ function OrderManagement() {
                             </td>
                           </tr>
 
-                          {/* Expanded Order Details */}
                           {showOrderDetails === order.order_id && (
                             <tr>
                               <td colSpan="7" className="px-4 py-4 bg-black/30">
                                 <div className="grid grid-cols-1 gap-6">
-                                  {/* Order Information Cards */}
                                   <div className="grid grid-cols-1 md:grid-cols-1 gap-4 text-sm">
                                     <div className="bg-white/5 border border-white/10 rounded-3xl p-3">
                                       <h4 className="font-medium mb-2 flex items-center gap-1.5">
@@ -729,7 +670,6 @@ function OrderManagement() {
                                     </div>
                                   </div>
 
-                                  {/* Order Items Section */}
                                   {order.items && order.items.length > 0 && (
                                     <div className="bg-white/5 border border-white/10 rounded-3xl p-4">
                                       <h4 className="font-medium mb-3 flex items-center gap-1.5">

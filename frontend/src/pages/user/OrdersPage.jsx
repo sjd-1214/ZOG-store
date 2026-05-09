@@ -26,19 +26,12 @@ import useAuthCheck from '../../hooks/useAuthCheck';
 import Loader from '../../components/Loader';
 import Toast from '../../components/Toast';
 
-/********************************************************
- * OrdersPage Component
- * Displays user's order history with filtering options
- ********************************************************/
 function OrdersPage() {
-  // Check if the user is authenticated
   useAuthCheck();
 
-  // Get location and navigate for URL handling
   const location = useLocation();
   const navigate = useNavigate();
 
-  // State management for orders and UI elements
   const [orders, setOrders] = useState([]);
   const [filteredOrders, setFilteredOrders] = useState([]);
   const [statusCounts, setStatusCounts] = useState({});
@@ -57,7 +50,6 @@ function OrdersPage() {
   const [searchTimeout, setSearchTimeout] = useState(null);
   const [searchResults, setSearchResults] = useState(null);
 
-  // Check for URL query parameters
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const orderId = params.get('orderId');
@@ -95,12 +87,10 @@ function OrdersPage() {
     }
   };
 
-  // Load orders on component mount and filter changes
   useEffect(() => {
     fetchOrders();
   }, [activeFilter]);
 
-  // Function to search orders by ID through API
   const searchOrderById = async (orderId) => {
     setIsSearching(true);
     try {
@@ -119,7 +109,6 @@ function OrdersPage() {
       }
 
       const data = await response.json();
-      // API returns a single order object
       if (data.order) {
         setSearchResults([data.order]);
         setFilteredOrders([data.order]);
@@ -142,13 +131,11 @@ function OrdersPage() {
     }
   };
 
-  // Clear search and reset state
   const clearSearch = () => {
     setSearchTerm('');
     setIsSearching(false);
     setSearchResults(null);
 
-    // Apply active filter to show relevant orders
     setFilteredOrders(
       activeFilter === 'All'
         ? orders
@@ -159,15 +146,12 @@ function OrdersPage() {
     );
   };
 
-  // Handle search with debounce
   useEffect(() => {
     if (searchTimeout) {
       clearTimeout(searchTimeout);
     }
 
-    // Skip empty searches
     if (!searchTerm.trim()) {
-      // Reset filtered orders to show all orders with active filter
       setFilteredOrders(
         activeFilter === 'All'
           ? orders
@@ -182,21 +166,16 @@ function OrdersPage() {
       return;
     }
 
-    // Set searching state
     setIsSearching(true);
 
-    // Apply debounced search
     const timeout = setTimeout(() => {
-      // Use the API search when the user is looking for an order ID
       if (/^\d+$/.test(searchTerm.trim())) {
         searchOrderById(searchTerm.trim());
       } else {
-        // For non-numeric searches, do client-side filtering
         const results = orders.filter((order) =>
           order.order_id.toString().includes(searchTerm.trim())
         );
 
-        // Apply active filter to search results
         const filteredResults =
           activeFilter === 'All'
             ? results
@@ -210,7 +189,6 @@ function OrdersPage() {
         setIsSearching(false);
         setSearchResults(null);
 
-        // Auto-expand if only one result
         if (filteredResults.length === 1) {
           setExpandedOrder(filteredResults[0].order_id);
         }
@@ -226,7 +204,6 @@ function OrdersPage() {
     };
   }, [searchTerm, orders, activeFilter]);
 
-  // Update filtered orders when activeFilter changes (only if not searching)
   useEffect(() => {
     if (!searchTerm && !searchResults) {
       setFilteredOrders(
@@ -241,12 +218,10 @@ function OrdersPage() {
     }
   }, [activeFilter, orders, searchTerm, searchResults]);
 
-  // Expand/collapse order details
   const toggleOrderExpand = (orderId) => {
     setExpandedOrder(expandedOrder === orderId ? null : orderId);
   };
 
-  // Helper function to format date strings
   const formatDate = (dateString) => {
     const options = {
       year: 'numeric',
@@ -258,9 +233,7 @@ function OrdersPage() {
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
-  // Get appropriate icon based on order status
   const getStatusIcon = (status) => {
-    // Handle undefined or null status
     if (!status) return <Clock size={16} />;
 
     switch (status.toLowerCase()) {
@@ -279,9 +252,7 @@ function OrdersPage() {
     }
   };
 
-  // Get CSS classes for status badges
   const getStatusBadge = (status) => {
-    // Handle undefined or null status
     if (!status) return 'bg-gray-500/20 text-gray-400 border-gray-500/30';
 
     switch (status.toLowerCase()) {
@@ -300,7 +271,6 @@ function OrdersPage() {
     }
   };
 
-  // Display skeleton loaders during data fetching
   const renderSkeletonLoaders = () => {
     if (loading) {
       return (
@@ -317,7 +287,6 @@ function OrdersPage() {
     }
   };
 
-  // Hide toast notification
   const closeToast = () => {
     setToast((prev) => ({ ...prev, visible: false }));
   };
@@ -331,7 +300,6 @@ function OrdersPage() {
         backgroundPosition: 'center',
       }}
     >
-      {/* Toast Notification */}
       {toast.visible && (
         <div
           className="fixed bottom-4 right-4 z-50 p-4 rounded-xl shadow-2xl flex items-center gap-3 animate-fadeIn
@@ -352,12 +320,9 @@ function OrdersPage() {
         </div>
       )}
 
-      {/* Navbar */}
       <Navbar />
 
-      {/* Main Content */}
       <div className="relative z-20 px-4 md:px-12 py-8 max-w-7xl mx-auto pt-24">
-        {/* Header Section with Back Button */}
         <div className="flex items-center gap-3 mb-8">
           <button
             onClick={() => navigate('/home')}
@@ -371,7 +336,6 @@ function OrdersPage() {
           </h1>
         </div>
 
-        {/* Error Message */}
         {error && (
           <div className="bg-red-500/20 border border-red-500/50 rounded-xl p-4 mb-6 text-center">
             <p className="text-red-200">{error}</p>
@@ -384,10 +348,8 @@ function OrdersPage() {
           </div>
         )}
 
-        {/* Loading State - Skeleton Loaders */}
         {loading && <div className="space-y-6">{renderSkeletonLoaders()}</div>}
 
-        {/* Empty State */}
         {!loading && !error && filteredOrders.length === 0 && (
           <div className="bg-gradient-to-br from-white/5 to-white/2 backdrop-blur-md border border-white/10 rounded-2xl p-8 text-center flex flex-col items-center shadow-xl">
             <div className="inline-flex items-center justify-center w-24 h-24 bg-[#7C5DF9]/20 rounded-full mb-6">
@@ -444,13 +406,10 @@ function OrdersPage() {
           </div>
         )}
 
-        {/* Orders Content */}
         {!loading && !error && filteredOrders.length > 0 && (
           <>
-            {/* Search, Filter and Sort Options */}
             <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl p-4 mb-6">
               <div className="flex flex-col md:flex-row gap-4">
-                {/* Search Bar */}
                 <div className="relative flex-grow">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     {isSearching ? (
@@ -479,7 +438,6 @@ function OrdersPage() {
                   </div>
                 </div>
 
-                {/* Filter Toggle Button for Mobile */}
                 <button
                   onClick={() => setShowFilters(!showFilters)}
                   className="md:hidden flex items-center justify-center gap-2 px-4 py-2.5 bg-[#7C5DF9]/20 border border-[#7C5DF9]/30 rounded-lg text-[#7C5DF9] hover:bg-[#7C5DF9]/30 transition-colors cursor-pointer"
@@ -489,7 +447,6 @@ function OrdersPage() {
                 </button>
               </div>
 
-              {/* Status Filters - Hidden on Mobile Unless Toggled */}
               <div className={`mt-4 md:block ${showFilters ? 'block' : 'hidden'}`}>
                 <div className="flex flex-wrap gap-2">
                   <button
@@ -530,7 +487,6 @@ function OrdersPage() {
               </div>
             </div>
 
-            {/* Searching indicator */}
             {isSearching && (
               <div className="bg-[#7C5DF9]/10 border border-[#7C5DF9]/30 rounded-3xl p-4 mb-6 flex items-center justify-center gap-2">
                 <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-[#7C5DF9]"></div>
@@ -538,7 +494,6 @@ function OrdersPage() {
               </div>
             )}
 
-            {/* Orders List with enhanced styling */}
             <div className="space-y-6">
               {filteredOrders.map((order) => (
                 <div
@@ -550,7 +505,6 @@ function OrdersPage() {
                                         : 'hover:border-white/20'
                                     }`}
                 >
-                  {/* Order Header */}
                   <div className="p-4 sm:p-6 border-b border-white/10">
                     <div className="flex flex-col sm:flex-row justify-between gap-4">
                       <div>
@@ -605,10 +559,8 @@ function OrdersPage() {
                     </div>
                   </div>
 
-                  {/* Order Details (Expandable) */}
                   {expandedOrder === order.order_id && (
                     <div className="p-4 sm:p-6 bg-gradient-to-b from-[#7C5DF9]/5 to-transparent animate-fadeIn">
-                      {/* Items Section */}
                       <div className="bg-black/20 border border-white/10 rounded-3xl p-4 mb-6">
                         <h4 className="font-medium mb-4 flex items-center gap-2 text-[#7C5DF9]">
                           <Package size={16} />
@@ -664,7 +616,6 @@ function OrdersPage() {
                         </div>
                       </div>
 
-                      {/* Order Summary Section */}
                       <div className="flex flex-col sm:flex-row gap-6">
                         <div className="flex-grow">
                           <div className="bg-black/20 border border-white/10 rounded-3xl p-4">

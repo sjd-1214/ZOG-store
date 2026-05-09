@@ -114,3 +114,5 @@ sessions/
 # Debug
 debug.log
 *.stackdump
+screenshots/
+backend/.env

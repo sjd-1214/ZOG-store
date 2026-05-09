@@ -1,7 +1,3 @@
-/********************************************************
- * AdminPage Component
- * Dashboard with stats and overview for administrators
- ********************************************************/
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import overlay from '../../assets/overlay.png';
@@ -22,28 +18,20 @@ import {
 import Loader from '../../components/Loader';
 
 function AdminPage() {
-  // Check admin authentication
   useAuthCheck();
 
-  // State management
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState(null);
   const [topGames, setTopGames] = useState([]);
   const [dashboardError, setDashboardError] = useState(null);
 
-  // Load dashboard data on mount
   useEffect(() => {
-    // Fetch all dashboard data
     Promise.all([fetchDashboardStats(), fetchTopGames()]).finally(() => {
       setLoading(false);
     });
   }, []);
 
-  /********************************************************
-   * Data Fetching Functions
-   ********************************************************/
-  // Get dashboard statistics
-  const fetchDashboardStats = async () => {
+    const fetchDashboardStats = async () => {
     try {
       const response = await fetch('http://localhost:3000/dashboard/stats', {
         credentials: 'include',
@@ -61,7 +49,6 @@ function AdminPage() {
     }
   };
 
-  // Get top selling games
   const fetchTopGames = async () => {
     try {
       const response = await fetch('http://localhost:3000/dashboard/top-games', {
@@ -79,18 +66,13 @@ function AdminPage() {
     }
   };
 
-  /********************************************************
-   * Formatting Functions
-   ********************************************************/
-  // Format currency for display
-  const formatCurrency = (amount) => {
+    const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
     }).format(amount || 0);
   };
 
-  // Format date for display
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString(undefined, {
       year: 'numeric',
@@ -99,7 +81,6 @@ function AdminPage() {
     });
   };
 
-  // Show loading indicator while data loads
   if (loading) {
     return (
       <div
@@ -120,13 +101,10 @@ function AdminPage() {
         backgroundPosition: 'center',
       }}
     >
-      {/* Mobile Redirect */}
       <MobileAdminRedirect />
 
-      {/* Admin Sidebar */}
       <AdminSidebar />
 
-      {/* Main Content */}
       <div className="lg:ml-64 transition-all duration-300">
         <div className="p-4 md:p-8 pt-20">
           <header className="mb-8">
@@ -141,7 +119,6 @@ function AdminPage() {
             </div>
           )}
 
-          {/* Stats Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl p-5 flex items-center gap-4 hover:bg-white/10 transition-colors">
               <div className="bg-[#7C5DF9]/20 rounded-full p-3">
@@ -184,9 +161,7 @@ function AdminPage() {
             </div>
           </div>
 
-          {/* Data Cards Row */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            {/* Recent Orders */}
             <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl p-6 hover:bg-white/10 transition-colors">
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-lg font-bold flex items-center gap-2">
@@ -224,7 +199,6 @@ function AdminPage() {
               )}
             </div>
 
-            {/* Payment Methods */}
             <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl p-6 hover:bg-white/10 transition-colors">
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-lg font-bold flex items-center gap-2">
@@ -254,7 +228,6 @@ function AdminPage() {
             </div>
           </div>
 
-          {/* Top Games Card */}
           {topGames.length > 0 && (
             <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl p-6 mb-8 hover:bg-white/10 transition-colors">
               <div className="flex justify-between items-center mb-6">

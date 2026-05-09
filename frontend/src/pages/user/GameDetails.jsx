@@ -21,15 +21,9 @@ import useAuthCheck from '../../hooks/useAuthCheck';
 import Loader from '../../components/Loader';
 import Toast from '../../components/Toast';
 
-/********************************************************
- * GameDetails Component
- * Displays detailed information about a specific game
- ********************************************************/
 function GameDetails() {
-  // Authentication check
   useAuthCheck();
 
-  // State and router hooks
   const navigate = useNavigate();
   const { gameId } = useParams();
   const [game, setGame] = useState(null);
@@ -45,12 +39,10 @@ function GameDetails() {
     type: 'success',
   });
 
-  // Hide toast notification
   const closeToast = () => {
     setToast((prev) => ({ ...prev, visible: false }));
   };
 
-  // Load game data by ID
   useEffect(() => {
     const fetchGameData = async () => {
       if (gameId) {
@@ -83,16 +75,13 @@ function GameDetails() {
     };
 
     fetchGameData();
-    // Also fetch cart count when component mounts
     fetchCartCount();
   }, [gameId]);
 
-  // Update cart count when component mounts
   useEffect(() => {
     fetchCartCount();
   }, []);
 
-  // Get current cart item count
   const fetchCartCount = async () => {
     try {
       const response = await fetch('http://localhost:3000/cart/count', {
@@ -108,22 +97,18 @@ function GameDetails() {
     }
   };
 
-  // Display notification to user
   const showToast = (message, type = 'success') => {
     setToast({ visible: true, message, type });
 
-    // Auto-hide toast after 3 seconds
     setTimeout(() => {
       setToast((prev) => ({ ...prev, visible: false }));
     }, 3000);
   };
 
-  // Navigate to previous page
   const handleBack = () => {
     navigate('/home');
   };
 
-  // Quantity control functions
   const decreaseQuantity = () => {
     if (quantity > 1) {
       setQuantity(quantity - 1);
@@ -131,13 +116,11 @@ function GameDetails() {
   };
 
   const increaseQuantity = () => {
-    // Check if increasing would exceed available stock
     if (game && game.stock_quantity && quantity < game.stock_quantity) {
       setQuantity(quantity + 1);
     }
   };
 
-  // Add current game to shopping cart
   const handleAddToCart = async () => {
     if (!game || !game.stock_quantity || game.stock_quantity <= 0) return;
 
@@ -163,10 +146,8 @@ function GameDetails() {
       await response.json();
       setAddToCartSuccess(true);
 
-      // Update cart count
       await fetchCartCount();
 
-      // Show success toast
       showToast(`${game.title} added to cart${quantity > 1 ? ` (${quantity})` : ''}`);
 
       setTimeout(() => setAddToCartSuccess(false), 3000);
@@ -178,7 +159,6 @@ function GameDetails() {
     }
   };
 
-  // Show loading state while fetching data
   if (loading) {
     return (
       <div
@@ -190,7 +170,6 @@ function GameDetails() {
     );
   }
 
-  // Show error message if game can't be loaded
   if (error || !game) {
     return (
       <div
@@ -231,17 +210,14 @@ function GameDetails() {
         position: 'relative',
       }}
     >
-      {/* Add an additional blurred overlay for better effect */}
       <div
         className="absolute inset-0 bg-[#0A0A0B]/70 backdrop-blur-md"
         style={{ zIndex: 1 }}
       ></div>
 
       <div className="relative z-20">
-        {/* Navbar with Cart Count */}
         <Navbar cartCount={cartCount} />
 
-        {/* Toast Notification */}
         <Toast
           visible={toast.visible}
           message={toast.message}
@@ -249,9 +225,7 @@ function GameDetails() {
           onClose={closeToast}
         />
 
-        {/* Main Content */}
         <div className="relative z-20 px-4 md:px-12 pt-24 pb-8 max-w-7xl mx-auto">
-          {/* Back Button */}
           <button
             onClick={handleBack}
             className="flex items-center gap-2 text-gray-300 hover:text-white mb-6 cursor-pointer"
@@ -282,7 +256,6 @@ function GameDetails() {
             )}
           </div>
           <div className="flex flex-col lg:flex-row gap-8">
-            {/* Left Column - Game Info */}
             <div className="w-full lg:w-2/3 bg-black/70 border border-white/10 rounded-[40px]">
               <div className="p-6">
                 <h3 className="text-xl font-bold mb-4">About This Game</h3>
@@ -292,7 +265,6 @@ function GameDetails() {
                   </p>
                 </div>
 
-                {/* Game Info */}
                 <h3 className="text-lg font-bold mb-4 flex items-center">Game Details</h3>
                 <div className="p-6 rounded-xl mb-6">
                   <div className="space-y-4">
@@ -321,10 +293,8 @@ function GameDetails() {
               </div>
             </div>
 
-            {/* Right Column - Purchase Panel */}
             <div className="w-full lg:w-1/3 border bg-black/70 border-white/10 rounded-[40px]">
               <div className="lg:sticky lg:top-24 p-6">
-                {/* Game Icon and Price */}
                 <div className="flex items-center justify-between mb-6">
                   {game.gameicon ? (
                     <div className="flex items-center gap-4">
@@ -356,7 +326,6 @@ function GameDetails() {
                   )}
                 </div>
 
-                {/* Price and Stock */}
                 <div className="flex justify-between items-center mb-6">
                   <div>
                     <div className="text-3xl font-bold text-white">
@@ -376,10 +345,8 @@ function GameDetails() {
                       )}
                     </div>
                   </div>
-                  {/* Removed share and favorite buttons */}
                 </div>
 
-                {/* Quantity Selector */}
                 {game.stock_quantity > 0 && game.price !== '0.00' && (
                   <div className="mb-6">
                     <label className="block text-sm font-medium text-gray-300 mb-2">Quantity</label>
@@ -423,7 +390,6 @@ function GameDetails() {
                   </div>
                 )}
 
-                {/* Purchase Button */}
                 <div className="space-y-3">
                   <button
                     onClick={handleAddToCart}

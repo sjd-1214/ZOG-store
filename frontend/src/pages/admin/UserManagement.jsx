@@ -1,7 +1,3 @@
-/********************************************************
- * UserManagement Component
- * Admin interface for managing user accounts
- ********************************************************/
 import { useState, useEffect } from 'react';
 import { Search, RefreshCw, Edit, AlertCircle, Check, X, User, Trash2, Save } from 'lucide-react';
 import overlay from '../../assets/overlay.png';
@@ -12,10 +8,8 @@ import Loader from '../../components/Loader';
 import Toast from '../../components/Toast';
 
 function UserManagement() {
-  // Check admin authentication
   useAuthCheck();
 
-  // State management
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -32,7 +26,6 @@ function UserManagement() {
     username: '',
   });
 
-  // User edit modal states
   const [showUserEdit, setShowUserEdit] = useState(false);
   const [editUser, setEditUser] = useState(null);
   const [editForm, setEditForm] = useState({
@@ -45,15 +38,10 @@ function UserManagement() {
   const [formErrors, setFormErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
 
-  /********************************************************
-   * Data Fetching Functions
-   ********************************************************/
-  // Load users on component mount
-  useEffect(() => {
+    useEffect(() => {
     fetchUsers();
   }, []);
 
-  // Debounced search
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
       if (searchTerm) {
@@ -66,7 +54,6 @@ function UserManagement() {
     return () => clearTimeout(delayDebounceFn);
   }, [searchTerm]);
 
-  // Get all users
   const fetchUsers = async () => {
     setLoading(true);
     setError(null);
@@ -90,7 +77,6 @@ function UserManagement() {
     }
   };
 
-  // Search users by query
   const searchUsers = async (query) => {
     if (!query.trim()) return;
 
@@ -120,23 +106,17 @@ function UserManagement() {
     }
   };
 
-  /********************************************************
-   * Notification Functions
-   ********************************************************/
-  // Show toast notification
-  const showToast = (message, type = 'success') => {
+    const showToast = (message, type = 'success') => {
     setToast({ visible: true, message, type });
     setTimeout(() => {
       setToast({ visible: false, message: '', type: 'success' });
     }, 3000);
   };
 
-  // Hide toast notification
   const closeToast = () => {
     setToast((prev) => ({ ...prev, visible: false }));
   };
 
-  // Format date for display
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
     return new Date(dateString).toLocaleDateString(undefined, {
@@ -146,11 +126,7 @@ function UserManagement() {
     });
   };
 
-  /********************************************************
-   * User Management Functions
-   ********************************************************/
-  // Show delete confirmation modal
-  const confirmDeleteUser = (userId, username) => {
+    const confirmDeleteUser = (userId, username) => {
     setDeleteConfirm({
       show: true,
       userId,
@@ -158,7 +134,6 @@ function UserManagement() {
     });
   };
 
-  // Cancel user deletion
   const cancelDelete = () => {
     setDeleteConfirm({
       show: false,
@@ -167,7 +142,6 @@ function UserManagement() {
     });
   };
 
-  // Delete user account
   const deleteUser = async () => {
     if (!deleteConfirm.userId) return;
 
@@ -185,7 +159,6 @@ function UserManagement() {
         throw new Error(errorData.message || 'Failed to delete user');
       }
 
-      // Remove user from state
       setUsers(users.filter((user) => user.user_id !== deleteConfirm.userId));
       showToast(`User deleted successfully`, 'success');
     } catch (error) {
@@ -200,7 +173,6 @@ function UserManagement() {
     }
   };
 
-  // Open user edit form
   const openUserEdit = (user) => {
     setEditUser(user);
     setEditForm({
@@ -214,7 +186,6 @@ function UserManagement() {
     setShowUserEdit(true);
   };
 
-  // Close user edit form
   const closeUserEdit = () => {
     setShowUserEdit(false);
     setEditUser(null);
@@ -228,7 +199,6 @@ function UserManagement() {
     setFormErrors({});
   };
 
-  // Handle edit form input changes
   const handleEditChange = (e) => {
     const { name, value } = e.target;
     setEditForm((prev) => ({
@@ -236,7 +206,6 @@ function UserManagement() {
       [name]: value,
     }));
 
-    // Clear field errors when user types
     if (formErrors[name]) {
       setFormErrors((prev) => ({
         ...prev,
@@ -245,7 +214,6 @@ function UserManagement() {
     }
   };
 
-  // Validate user edit form
   const validateEditForm = () => {
     const errors = {};
 
@@ -263,7 +231,6 @@ function UserManagement() {
       errors.role = 'Role is required';
     }
 
-    // Only validate password if it's provided
     if (editForm.password) {
       if (editForm.password.length < 6) {
         errors.password = 'Password must be at least 6 characters';
@@ -278,7 +245,6 @@ function UserManagement() {
     return Object.keys(errors).length === 0;
   };
 
-  // Submit user edit form
   const handleEditSubmit = async (e) => {
     e.preventDefault();
 
@@ -289,7 +255,6 @@ function UserManagement() {
     setSubmitting(true);
 
     try {
-      // Create the request body based on whether a password was provided
       const requestBody = { ...editForm };
       if (!requestBody.password) {
         delete requestBody.password;
@@ -298,10 +263,8 @@ function UserManagement() {
         delete requestBody.confirmPassword;
       }
 
-      // Determine if this is a password-specific update
       let endpoint = `http://localhost:3000/admin/users?userId=${editUser.user_id}`;
 
-      // Use a different endpoint if password is being updated
       if (requestBody.password) {
         endpoint = `http://localhost:3000/admin/users/password?userId=${editUser.user_id}`;
       }
@@ -319,7 +282,6 @@ function UserManagement() {
         throw new Error('Failed to update user information');
       }
 
-      // Update user in the list
       setUsers(
         users.map((user) =>
           user.user_id === editUser.user_id
@@ -352,13 +314,10 @@ function UserManagement() {
         backgroundPosition: 'center',
       }}
     >
-      {/* Mobile Redirect */}
       <MobileAdminRedirect />
 
-      {/* Admin Sidebar */}
       <AdminSidebar />
 
-      {/* Toast Component */}
       <Toast
         visible={toast.visible}
         message={toast.message}
@@ -366,10 +325,8 @@ function UserManagement() {
         onClose={closeToast}
       />
 
-      {/* Main Content */}
       <div className="lg:ml-64 transition-all duration-300">
         <div className="p-4 md:p-8">
-          {/* Delete Confirmation Modal */}
           {deleteConfirm.show && (
             <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
               <div className="bg-[#1A1A1C] border border-white/10 rounded-3xl p-5 max-w-sm w-full mx-4">
@@ -399,11 +356,9 @@ function UserManagement() {
             </div>
           )}
 
-          {/* User Edit Modal */}
           {showUserEdit && editUser && (
             <div className="fixed inset-0 bg-black/10 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
               <div className="bg-[#1A1A1C] border border-white/10 rounded-3xl max-w-md w-full mx-auto p-2">
-                {/* Modal Header */}
                 <div className="flex justify-between items-center p-3 border-b border-white/10">
                   <div className="flex items-center gap-2">
                     <div className="h-8 w-8 rounded-full bg-[#7C5DF9]/20 flex items-center justify-center">
@@ -574,16 +529,13 @@ function UserManagement() {
             </div>
           )}
 
-          {/* Header */}
           <header className="mb-8">
             <h1 className="text-3xl font-bold">User Management</h1>
             <p className="text-gray-400">Manage user accounts and permissions</p>
           </header>
 
-          {/* Search Bar */}
           <div className="bg-white/5 border border-white/10 rounded-3xl p-4 mb-6">
             <div className="flex flex-col md:flex-row gap-4">
-              {/* Search Input */}
               <div className="relative flex-grow">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <Search size={16} className="text-gray-400" />
@@ -608,7 +560,6 @@ function UserManagement() {
                 )}
               </div>
 
-              {/* Refresh Button */}
               <button
                 onClick={fetchUsers}
                 className="px-4 py-2 bg-white/10 hover:bg-white/15 rounded-xl flex items-center gap-2 transition-colors cursor-pointer"
@@ -619,7 +570,6 @@ function UserManagement() {
             </div>
           </div>
 
-          {/* Error Message */}
           {error && (
             <div className="bg-red-500/20 border border-red-500/30 rounded-3xl p-4 mb-6 text-center">
               <p className="text-red-200 flex items-center justify-center gap-2">
@@ -635,14 +585,12 @@ function UserManagement() {
             </div>
           )}
 
-          {/* Loading Indicator */}
           {loading && (
             <div className="flex justify-center items-center h-64">
               <Loader size="large" logoSize="small" />
             </div>
           )}
 
-          {/* Search in progress indicator */}
           {searching && !loading && (
             <div className="bg-[#7C5DF9]/10 border border-[#7C5DF9]/30 rounded-3xl p-4 mb-6 flex items-center justify-center gap-2">
               <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-[#7C5DF9]"></div>
@@ -650,7 +598,6 @@ function UserManagement() {
             </div>
           )}
 
-          {/* Users Table */}
           {!loading && !error && (
             <div className="bg-white/5 border border-white/10 rounded-3xl overflow-hidden">
               {users.length === 0 ? (

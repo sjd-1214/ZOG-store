@@ -1,7 +1,3 @@
-/********************************************************
- * InventoryManagement Component
- * Admin interface for managing game stock levels
- ********************************************************/
 import { useState, useEffect } from 'react';
 import { Search, RefreshCw, Package, AlertCircle, Check, X, Plus, Minus } from 'lucide-react';
 import overlay from '../../assets/overlay.png';
@@ -12,10 +8,8 @@ import Loader from '../../components/Loader';
 import Toast from '../../components/Toast';
 
 function InventoryManagement() {
-  // Check admin authentication
   useAuthCheck();
 
-  // State management
   const [inventory, setInventory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -31,27 +25,20 @@ function InventoryManagement() {
   const [debounceTimers, setDebounceTimers] = useState({});
   const [searchTimer, setSearchTimer] = useState(null);
 
-  /********************************************************
-   * Data Loading and Searching
-   ********************************************************/
-  // Load inventory on component mount
-  useEffect(() => {
+    useEffect(() => {
     fetchInventory();
   }, []);
 
-  // Debounced search processing
   useEffect(() => {
     if (searchTimer) {
       clearTimeout(searchTimer);
     }
 
     if (!searchTerm.trim()) {
-      // If search is cleared, show all inventory
       fetchInventory();
       return;
     }
 
-    // Debounce search to prevent excessive API calls
     const timer = setTimeout(() => {
       fetchInventoryBySearch(searchTerm);
     }, 500);
@@ -63,7 +50,6 @@ function InventoryManagement() {
     };
   }, [searchTerm]);
 
-  // Get all inventory items
   const fetchInventory = async () => {
     setLoading(true);
     setError(null);
@@ -88,7 +74,6 @@ function InventoryManagement() {
     }
   };
 
-  // Search inventory by game title
   const fetchInventoryBySearch = async (title) => {
     if (!title.trim()) return;
 
@@ -118,14 +103,9 @@ function InventoryManagement() {
     }
   };
 
-  /********************************************************
-   * Notification Functions
-   ********************************************************/
-  // Show toast notification
-  const showToast = (message, type = 'success', duration = 3000) => {
+    const showToast = (message, type = 'success', duration = 3000) => {
     setToast({ visible: true, message, type });
 
-    // Only set timeout to hide for success/error messages, not for "updating" messages
     if (type !== 'updating') {
       setTimeout(() => {
         setToast({ visible: false, message: '', type: 'success' });
@@ -133,28 +113,19 @@ function InventoryManagement() {
     }
   };
 
-  // Hide toast notification
   const closeToast = () => {
     setToast((prev) => ({ ...prev, visible: false }));
   };
 
-  /********************************************************
-   * Inventory Management Functions
-   ********************************************************/
-  // Debounce stock updates to prevent API flooding
-  const debounceStockUpdate = (gameId, stockQuantity) => {
-    // Cancel any existing timer for this gameId
+    const debounceStockUpdate = (gameId, stockQuantity) => {
     if (debounceTimers[gameId]) {
       clearTimeout(debounceTimers[gameId]);
     }
 
-    // Show updating toast
     showToast(`Updating stock for game #${gameId}...`, 'updating');
 
-    // Set a new timer
     const timerId = setTimeout(() => {
       updateStockQuantity(gameId, stockQuantity);
-      // Remove this timer from the timers object when done
       setDebounceTimers((prev) => {
         const newTimers = { ...prev };
         delete newTimers[gameId];
@@ -162,16 +133,13 @@ function InventoryManagement() {
       });
     }, 800); // 800ms debounce time
 
-    // Store the timer id
     setDebounceTimers((prev) => ({
       ...prev,
       [gameId]: timerId,
     }));
   };
 
-  // Handle stock quantity change
   const handleStockChange = (gameId, operation) => {
-    // Find the current inventory item
     const inventoryItem = inventory.find((item) => item.game_id === gameId);
     const currentStock =
       stockChanges[gameId] !== undefined ? stockChanges[gameId] : inventoryItem.stock_quantity;
@@ -184,38 +152,31 @@ function InventoryManagement() {
       newValue = Math.max(0, newValue - 1);
     }
 
-    // Update local state immediately for responsive UI
     setStockChanges({
       ...stockChanges,
       [gameId]: newValue,
     });
 
-    // Update the inventory item in the database with debounce
     setUpdatingItem(gameId);
     debounceStockUpdate(gameId, newValue);
   };
 
-  // Direct input for stock quantity
   const handleStockInputChange = (gameId, value) => {
     const numericValue = Math.max(0, parseInt(value) || 0);
 
-    // Update local state immediately for responsive UI
     setStockChanges({
       ...stockChanges,
       [gameId]: numericValue,
     });
 
-    // Update the inventory item in the database with debounce
     setUpdatingItem(gameId);
     debounceStockUpdate(gameId, numericValue);
   };
 
-  // Get current stock value (from local state or original)
   const getCurrentStock = (gameId, defaultStock) => {
     return stockChanges[gameId] !== undefined ? stockChanges[gameId] : defaultStock;
   };
 
-  // Update stock quantity in database
   const updateStockQuantity = async (gameId, stockQuantity) => {
     try {
       const response = await fetch(`http://localhost:3000/admin/inventory?gameId=${gameId}`, {
@@ -233,7 +194,6 @@ function InventoryManagement() {
         throw new Error('Failed to update inventory');
       }
 
-      // Update local inventory data
       setInventory(
         inventory.map((item) =>
           item.game_id === gameId ? { ...item, stock_quantity: stockQuantity } : item
@@ -245,7 +205,6 @@ function InventoryManagement() {
       console.error('Error updating inventory:', error);
       showToast(`Failed to update inventory: ${error.message}`, 'error');
 
-      // Revert the change in the UI
       const inventoryItem = inventory.find((item) => item.game_id === gameId);
       if (inventoryItem) {
         setStockChanges((prev) => ({
@@ -267,13 +226,10 @@ function InventoryManagement() {
         backgroundPosition: 'center',
       }}
     >
-      {/* Mobile Redirect */}
       <MobileAdminRedirect />
 
-      {/* Admin Sidebar */}
       <AdminSidebar />
 
-      {/* Toast Component */}
       <Toast
         visible={toast.visible}
         message={toast.message}
@@ -281,19 +237,15 @@ function InventoryManagement() {
         onClose={closeToast}
       />
 
-      {/* Main Content */}
       <div className="lg:ml-64 transition-all duration-300">
         <div className="p-4 md:p-8">
-          {/* Header */}
           <header className="mb-8">
             <h1 className="text-2xl font-bold">Inventory Management</h1>
             <p className="text-gray-400">Manage stock levels for all games</p>
           </header>
 
-          {/* Search Bar */}
           <div className="bg-white/5 border border-white/10 rounded-3xl p-4 mb-6">
             <div className="flex flex-col md:flex-row gap-4">
-              {/* Search Input */}
               <div className="relative flex-grow">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <Search size={16} className="text-gray-400" />
@@ -315,7 +267,6 @@ function InventoryManagement() {
                 )}
               </div>
 
-              {/* Refresh Button */}
               <button
                 onClick={fetchInventory}
                 className="px-4 py-2 bg-white/10 hover:bg-white/15 rounded-xl flex items-center gap-2 transition-colors cursor-pointer"
@@ -326,7 +277,6 @@ function InventoryManagement() {
             </div>
           </div>
 
-          {/* Error Message */}
           {error && (
             <div className="bg-red-500/20 border border-red-500/30 rounded-3xl p-4 mb-6 text-center">
               <p className="text-red-200 flex items-center justify-center gap-2">
@@ -342,14 +292,12 @@ function InventoryManagement() {
             </div>
           )}
 
-          {/* Loading Indicator */}
           {loading && (
             <div className="flex justify-center items-center h-64">
               <Loader size="large" logoSize="small" />
             </div>
           )}
 
-          {/* Inventory Table */}
           {!loading && !error && (
             <div className="bg-white/5 border border-white/10 rounded-3xl overflow-hidden">
               {filteredInventory.length === 0 ? (

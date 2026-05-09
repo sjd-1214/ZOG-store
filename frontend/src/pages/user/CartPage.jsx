@@ -20,12 +20,7 @@ import useAuthCheck from '../../hooks/useAuthCheck';
 import Loader from '../../components/Loader';
 import Toast from '../../components/Toast';
 
-/********************************************************
- * CartPage Component
- * Displays cart items and handles checkout process
- ********************************************************/
 function CartPage() {
-  // State and navigation setup
   const navigate = useNavigate();
   const [cartItems, setCartItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -39,36 +34,24 @@ function CartPage() {
     message: '',
     type: 'success',
   });
-  // Checkout process states
   const [checkoutStep, setCheckoutStep] = useState('cart'); // 'cart', 'payment', 'confirmation'
   const [paymentMethod, setPaymentMethod] = useState('Credit Card');
 
-  // Authentication check
   useAuthCheck();
 
-  /********************************************************
-   * Toast Notification Functions
-   ********************************************************/
-  // Display notification to user
-  const showToast = (message, type = 'success') => {
+    const showToast = (message, type = 'success') => {
     setToast({ visible: true, message, type });
 
-    // Auto-hide toast after 3 seconds
     setTimeout(() => {
       setToast((prev) => ({ ...prev, visible: false }));
     }, 3000);
   };
 
-  // Hide toast notification
   const closeToast = () => {
     setToast((prev) => ({ ...prev, visible: false }));
   };
 
-  /********************************************************
-   * Cart Calculation Functions
-   ********************************************************/
-  // Calculate total price of all items
-  const calculateCartTotal = (items) => {
+    const calculateCartTotal = (items) => {
     return items.reduce((sum, item) => {
       const itemPrice = parseFloat(item.price) || 0;
       const quantity = parseInt(item.quantity) || 0;
@@ -76,15 +59,10 @@ function CartPage() {
     }, 0);
   };
 
-  /********************************************************
-   * Data Fetching
-   ********************************************************/
-  // Load cart items from API
-  useEffect(() => {
+    useEffect(() => {
     const fetchCartItems = async () => {
       setLoading(true);
       try {
-        // Make a real API call to fetch cart items
         const response = await fetch('http://localhost:3000/cart', {
           credentials: 'include',
         });
@@ -96,7 +74,6 @@ function CartPage() {
         const data = await response.json();
         setCartItems(data.cartItems);
 
-        // Fix for the incorrectly formatted total from API
         const calculatedTotal = calculateCartTotal(data.cartItems);
         setCartTotal(calculatedTotal);
 
@@ -112,16 +89,11 @@ function CartPage() {
     fetchCartItems();
   }, []);
 
-  /********************************************************
-   * Cart Item Management
-   ********************************************************/
-  // Update item quantity in cart
-  const updateQuantity = async (itemId, newQuantity) => {
+    const updateQuantity = async (itemId, newQuantity) => {
     if (newQuantity < 1) return;
 
     setProcessingItem(itemId);
     try {
-      // Updated to use POST and the correct parameter name
       const response = await fetch(`http://localhost:3000/cart/update`, {
         method: 'POST',
         credentials: 'include',
@@ -136,7 +108,6 @@ function CartPage() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        // Handle insufficient inventory with toast instead of alert
         if (response.status === 400 && errorData.message.includes('exceeds available stock')) {
           showToast(`Only ${errorData.availableQuantity} units available in stock.`, 'error');
           throw new Error(errorData.message);
@@ -144,7 +115,6 @@ function CartPage() {
         throw new Error('Failed to update cart item');
       }
 
-      // Refresh cart data after update
       const cartResponse = await fetch('http://localhost:3000/cart', {
         credentials: 'include',
       });
@@ -153,13 +123,11 @@ function CartPage() {
         const data = await cartResponse.json();
         setCartItems(data.cartItems);
 
-        // Use our own calculation for total
         const calculatedTotal = calculateCartTotal(data.cartItems);
         setCartTotal(calculatedTotal);
 
         setItemCount(data.itemCount);
 
-        // Show success toast
         showToast('Cart updated successfully');
       }
     } catch (error) {
@@ -172,7 +140,6 @@ function CartPage() {
     }
   };
 
-  // Remove item from cart
   const removeItem = async (itemId) => {
     setProcessingItem(itemId);
     try {
@@ -191,7 +158,6 @@ function CartPage() {
         throw new Error('Failed to remove cart item');
       }
 
-      // Refresh cart data after removal
       const cartResponse = await fetch('http://localhost:3000/cart', {
         credentials: 'include',
       });
@@ -200,13 +166,11 @@ function CartPage() {
         const data = await cartResponse.json();
         setCartItems(data.cartItems);
 
-        // Use our own calculation for total
         const calculatedTotal = calculateCartTotal(data.cartItems);
         setCartTotal(calculatedTotal);
 
         setItemCount(data.itemCount);
 
-        // Show success toast for item removal
         showToast('Item removed from cart');
       }
     } catch (error) {
@@ -217,31 +181,23 @@ function CartPage() {
     }
   };
 
-  // Calculate cart subtotal
   const calculateSubtotal = () => {
     return cartTotal ? cartTotal.toFixed(2) : '0.00';
   };
 
-  /********************************************************
-   * Checkout Process
-   ********************************************************/
-  // Start checkout process
-  const startCheckout = () => {
+    const startCheckout = () => {
     if (cartItems.length === 0) return;
     setCheckoutStep('payment');
   };
 
-  // Select payment method
   const selectPaymentMethod = (method) => {
     setPaymentMethod(method);
   };
 
-  // Return to cart from payment screen
   const cancelPayment = () => {
     setCheckoutStep('cart');
   };
 
-  // Complete checkout and create order
   const handleCheckout = async () => {
     if (cartItems.length === 0) return;
 
@@ -265,18 +221,14 @@ function CartPage() {
 
       const orderData = await response.json();
 
-      // Clear cart and redirect to a success page
       setCartItems([]);
       setCartTotal(0);
       setItemCount(0);
 
-      // Show success toast before navigating
       showToast('Order placed successfully! Redirecting...');
 
-      // Set confirmation step
       setCheckoutStep('confirmation');
 
-      // Add a small delay before navigating to allow the toast to be seen
       setTimeout(() => {
         navigate('/orders', {
           state: {
@@ -291,7 +243,6 @@ function CartPage() {
     }
   };
 
-  // Show loading indicator
   if (loading) {
     return (
       <div
@@ -312,7 +263,6 @@ function CartPage() {
         backgroundPosition: 'center',
       }}
     >
-      {/* Toast Notification */}
       <Toast
         visible={toast.visible}
         message={toast.message}
@@ -320,10 +270,8 @@ function CartPage() {
         onClose={closeToast}
       />
 
-      {/* Navbar */}
       <Navbar />
 
-      {/* Main Content */}
       <div className="relative z-20 px-4 md:px-12 py-8 max-w-7xl mx-auto pt-24">
         <div className="flex items-center gap-3 mb-8">
           {checkoutStep === 'cart' ? (
@@ -380,10 +328,8 @@ function CartPage() {
           </div>
         ) : (
           <>
-            {/* Cart View */}
             {checkoutStep === 'cart' && (
               <div className="flex flex-col lg:flex-row gap-8">
-                {/* Cart Items */}
                 <div className="w-full lg:w-2/3">
                   <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl overflow-hidden">
                     {cartItems.map((item) => (
@@ -391,9 +337,7 @@ function CartPage() {
                         key={item.cart_id}
                         className="p-4 sm:p-6 border-b border-white/10 last:border-b-0 flex flex-col sm:flex-row gap-4 relative"
                       >
-                        {/* Item Details */}
                         <div className="flex gap-4 flex-1">
-                          {/* Game Icon */}
                           <div
                             className="h-20 w-20 flex-shrink-0 rounded-2xl overflow-hidden"
                             onClick={() => navigate(`/game/${item.game_id}`)}
@@ -405,7 +349,6 @@ function CartPage() {
                             />
                           </div>
 
-                          {/* Game Info */}
                           <div className="flex-1">
                             <h3
                               className="text-lg font-semibold mb-1 cursor-pointer hover:text-[#7C5DF9] transition-colors"
@@ -416,7 +359,6 @@ function CartPage() {
                             <div className="flex items-center justify-between sm:justify-start gap-6">
                               <span className="text-lg font-bold text-white">${item.price}</span>
 
-                              {/* Delete Button (Mobile) */}
                               <button
                                 onClick={() => removeItem(item.cart_id)}
                                 disabled={processingItem === item.cart_id}
@@ -432,7 +374,6 @@ function CartPage() {
                           </div>
                         </div>
 
-                        {/* Quantity Controls and Delete Button */}
                         <div className="flex items-center gap-4 self-end sm:self-center">
                           <div className="flex items-center">
                             <button
@@ -462,7 +403,6 @@ function CartPage() {
                             </button>
                           </div>
 
-                          {/* Delete Button (Desktop) */}
                           <button
                             onClick={() => removeItem(item.cart_id)}
                             disabled={processingItem === item.cart_id}
@@ -480,7 +420,6 @@ function CartPage() {
                   </div>
                 </div>
 
-                {/* Cart Summary */}
                 {cartItems.length > 0 && (
                   <div className="w-full lg:w-1/3">
                     <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl p-6">
@@ -518,7 +457,6 @@ function CartPage() {
               </div>
             )}
 
-            {/* Payment Method Selection */}
             {checkoutStep === 'payment' && (
               <div className="flex flex-col lg:flex-row gap-8">
                 <div className="w-full lg:w-2/3">
@@ -526,7 +464,6 @@ function CartPage() {
                     <h2 className="text-xl font-bold mb-6">Select Payment Method</h2>
 
                     <div className="space-y-4">
-                      {/* Credit Card Option */}
                       <div
                         className={`p-4 rounded-xl border transition-all cursor-pointer ${
                           paymentMethod === 'Credit Card'
@@ -555,7 +492,6 @@ function CartPage() {
                         </div>
                       </div>
 
-                      {/* Digital Wallet Option */}
                       <div
                         className={`p-4 rounded-xl border transition-all cursor-pointer ${
                           paymentMethod === 'Digital Wallet'
@@ -584,7 +520,6 @@ function CartPage() {
                         </div>
                       </div>
 
-                      {/* Gift Card Option */}
                       <div
                         className={`p-4 rounded-xl border transition-all cursor-pointer ${
                           paymentMethod === 'Gift Card'
@@ -616,7 +551,6 @@ function CartPage() {
                   </div>
                 </div>
 
-                {/* Order Summary */}
                 <div className="w-full lg:w-1/3">
                   <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-xl p-6">
                     <h2 className="text-xl font-bold mb-4">Order Summary</h2>

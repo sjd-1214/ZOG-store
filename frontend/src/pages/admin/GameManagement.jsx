@@ -1,7 +1,3 @@
-/********************************************************
- * GameManagement Component
- * Admin interface for adding, editing and removing games
- ********************************************************/
 import { useState, useEffect, useCallback } from 'react';
 import {
   Search,
@@ -24,10 +20,8 @@ import { Loader as LoaderIcon } from 'lucide-react';
 import Toast from '../../components/Toast';
 
 function GameManagement() {
-  // Check admin authentication
   useAuthCheck();
 
-  // Game data state
   const [games, setGames] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -45,7 +39,6 @@ function GameManagement() {
   const [isSearching, setIsSearching] = useState(false);
   const [searchTimeout, setSearchTimeout] = useState(null);
 
-  // Edit game modal states
   const [showEditModal, setShowEditModal] = useState(false);
   const [gameToEdit, setGameToEdit] = useState(null);
   const [editForm, setEditForm] = useState({
@@ -59,7 +52,6 @@ function GameManagement() {
   const [editFormErrors, setEditFormErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
 
-  // Add game modal states
   const [showAddModal, setShowAddModal] = useState(false);
   const [addForm, setAddForm] = useState({
     title: '',
@@ -72,24 +64,17 @@ function GameManagement() {
   const [addFormErrors, setAddFormErrors] = useState({});
   const [addingGame, setAddingGame] = useState(false);
 
-  /********************************************************
-   * Data Loading and Initialization
-   ********************************************************/
-  // Load games and genres on component mount
-  useEffect(() => {
+    useEffect(() => {
     fetchGames();
     fetchGenres();
   }, []);
 
-  // Debounced search function
   const performSearch = useCallback(
     (query) => {
-      // Clear any existing timeout
       if (searchTimeout) {
         clearTimeout(searchTimeout);
       }
 
-      // If search term is empty, just return to regular filtering
       if (!query.trim()) {
         if (selectedGenre !== 'All') {
           fetchGamesByGenre(selectedGenre);
@@ -99,7 +84,6 @@ function GameManagement() {
         return;
       }
 
-      // Set a new timeout for the search API call
       const timeout = setTimeout(() => {
         fetchGamesBySearch(query);
       }, 500); // 500ms debounce
@@ -109,7 +93,6 @@ function GameManagement() {
     [selectedGenre]
   );
 
-  // Handle search and filtering
   useEffect(() => {
     if (searchTerm) {
       performSearch(searchTerm);
@@ -120,7 +103,6 @@ function GameManagement() {
     }
   }, [searchTerm, selectedGenre, performSearch]);
 
-  // Fetch all games
   const fetchGames = async () => {
     setLoading(true);
     setError(null);
@@ -145,7 +127,6 @@ function GameManagement() {
     }
   };
 
-  // Fetch games by genre
   const fetchGamesByGenre = async (genre) => {
     setLoading(true);
     setError(null);
@@ -173,7 +154,6 @@ function GameManagement() {
     }
   };
 
-  // Search games by title
   const fetchGamesBySearch = async (title) => {
     if (!title.trim()) return;
 
@@ -203,7 +183,6 @@ function GameManagement() {
     }
   };
 
-  // Get available genres
   const fetchGenres = async () => {
     try {
       const response = await fetch('http://localhost:3000/games/genres', {
@@ -221,11 +200,7 @@ function GameManagement() {
     }
   };
 
-  /********************************************************
-   * Game Management Functions
-   ********************************************************/
-  // Delete a game
-  const handleDeleteConfirm = async () => {
+    const handleDeleteConfirm = async () => {
     if (!gameToDelete) return;
 
     try {
@@ -241,10 +216,8 @@ function GameManagement() {
         throw new Error('Failed to delete game');
       }
 
-      // Remove the deleted game from state
       setGames(games.filter((game) => game.game_id !== gameToDelete.game_id));
 
-      // Show success toast
       showToast(`"${gameToDelete.title}" was successfully deleted`, 'success');
     } catch (error) {
       console.error('Error deleting game:', error);
@@ -255,13 +228,11 @@ function GameManagement() {
     }
   };
 
-  // Show delete confirmation
   const confirmDelete = (game) => {
     setGameToDelete(game);
     setShowDeleteModal(true);
   };
 
-  // Show notification
   const showToast = (message, type = 'success') => {
     setToast({ visible: true, message, type });
     setTimeout(() => {
@@ -269,26 +240,19 @@ function GameManagement() {
     }, 3000);
   };
 
-  // Hide notification
   const closeToast = () => {
     setToast((prev) => ({ ...prev, visible: false }));
   };
 
-  // Format price for display
   const formatPrice = (price) => {
     return price === '0.00' ? 'Free' : `$${parseFloat(price).toFixed(2)}`;
   };
 
-  // Format date for display
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString();
   };
 
-  /********************************************************
-   * Game Edit Functions
-   ********************************************************/
-  // Open edit game modal
-  const openEditModal = (game) => {
+    const openEditModal = (game) => {
     setGameToEdit(game);
     setEditForm({
       title: game.title || '',
@@ -302,7 +266,6 @@ function GameManagement() {
     setShowEditModal(true);
   };
 
-  // Close edit game modal
   const closeEditModal = () => {
     setShowEditModal(false);
     setGameToEdit(null);
@@ -317,7 +280,6 @@ function GameManagement() {
     setEditFormErrors({});
   };
 
-  // Handle edit form input changes
   const handleEditChange = (e) => {
     const { name, value } = e.target;
     setEditForm((prev) => ({
@@ -325,7 +287,6 @@ function GameManagement() {
       [name]: value,
     }));
 
-    // Clear error for the field being edited
     if (editFormErrors[name]) {
       setEditFormErrors((prev) => ({
         ...prev,
@@ -334,7 +295,6 @@ function GameManagement() {
     }
   };
 
-  // Validate edit form
   const validateEditForm = () => {
     const errors = {};
 
@@ -360,7 +320,6 @@ function GameManagement() {
     return Object.keys(errors).length === 0;
   };
 
-  // Submit game edit
   const handleEditSubmit = async (e) => {
     e.preventDefault();
 
@@ -394,7 +353,6 @@ function GameManagement() {
         throw new Error('Failed to update game');
       }
 
-      // Update game in the list
       setGames(
         games.map((game) =>
           game.game_id === gameToEdit.game_id
@@ -421,11 +379,7 @@ function GameManagement() {
     }
   };
 
-  /********************************************************
-   * Add Game Functions
-   ********************************************************/
-  // Open add game modal
-  const openAddModal = () => {
+    const openAddModal = () => {
     setAddForm({
       title: '',
       description: '',
@@ -438,7 +392,6 @@ function GameManagement() {
     setShowAddModal(true);
   };
 
-  // Close add game modal
   const closeAddModal = () => {
     setShowAddModal(false);
     setAddForm({
@@ -452,7 +405,6 @@ function GameManagement() {
     setAddFormErrors({});
   };
 
-  // Handle add form input changes
   const handleAddChange = (e) => {
     const { name, value } = e.target;
     setAddForm((prev) => ({
@@ -460,7 +412,6 @@ function GameManagement() {
       [name]: value,
     }));
 
-    // Clear error for the field being edited
     if (addFormErrors[name]) {
       setAddFormErrors((prev) => ({
         ...prev,
@@ -469,7 +420,6 @@ function GameManagement() {
     }
   };
 
-  // Validate add form
   const validateAddForm = () => {
     const errors = {};
 
@@ -495,7 +445,6 @@ function GameManagement() {
     return Object.keys(errors).length === 0;
   };
 
-  // Submit new game
   const handleAddSubmit = async (e) => {
     e.preventDefault();
 
@@ -528,13 +477,11 @@ function GameManagement() {
 
       const newGame = await response.json();
 
-      // Add the new game to the list
       setGames((prevGames) => [newGame, ...prevGames]);
 
       showToast(`"${addForm.title}" added successfully`, 'success');
       closeAddModal();
 
-      // Refresh games list to ensure we have the latest data
       fetchGames();
     } catch (error) {
       console.error('Error adding game:', error);
@@ -553,13 +500,10 @@ function GameManagement() {
         backgroundPosition: 'center',
       }}
     >
-      {/* Mobile Redirect */}
       <MobileAdminRedirect />
 
-      {/* Admin Sidebar */}
       <AdminSidebar />
 
-      {/* Toast Component */}
       <Toast
         visible={toast.visible}
         message={toast.message}
@@ -567,10 +511,8 @@ function GameManagement() {
         onClose={closeToast}
       />
 
-      {/* Main Content */}
       <div className="lg:ml-64 transition-all duration-300">
         <div className="p-4 md:p-8">
-          {/* Delete Confirmation Modal */}
           {showDeleteModal && (
             <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
               <div className="bg-[#1A1A1C] rounded-3xl p-5 max-w-sm w-full shadow-3xl border border-white/10">
@@ -598,7 +540,6 @@ function GameManagement() {
             </div>
           )}
 
-          {/* Edit Game Modal */}
           {showEditModal && gameToEdit && (
             <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto">
               <div className="bg-[#1A1A1C] rounded-3xl p-5 max-w-3xl w-full shadow-3xl border border-white/10 my-8">
@@ -758,7 +699,6 @@ function GameManagement() {
             </div>
           )}
 
-          {/* Add Game Modal */}
           {showAddModal && (
             <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto">
               <div className="bg-[#1A1A1C] rounded-3xl p-5 max-w-3xl w-full shadow-3xl border border-white/10 my-8">
@@ -918,7 +858,6 @@ function GameManagement() {
             </div>
           )}
 
-          {/* Header */}
           <header className="flex justify-between items-center mb-8">
             <div>
               <h1 className="text-3xl font-bold">Game Management</h1>
@@ -933,10 +872,8 @@ function GameManagement() {
             </button>
           </header>
 
-          {/* Search and Filter Bar */}
           <div className="bg-white/5 border border-white/10 rounded-3xl p-4 mb-6">
             <div className="flex flex-col md:flex-row gap-4">
-              {/* Search Input */}
               <div className="relative flex-grow">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   {isSearching ? (
@@ -962,7 +899,6 @@ function GameManagement() {
                 )}
               </div>
 
-              {/* Genre Filter Dropdown */}
               <div className="min-w-[160px]">
                 <select
                   value={selectedGenre}
@@ -984,7 +920,6 @@ function GameManagement() {
                 </select>
               </div>
 
-              {/* Refresh Button */}
               <button
                 onClick={fetchGames}
                 disabled={loading}
@@ -1000,7 +935,6 @@ function GameManagement() {
             </div>
           </div>
 
-          {/* Search in progress indicator */}
           {isSearching && !loading && (
             <div className="bg-[#7C5DF9]/10 border border-[#7C5DF9]/30 rounded-3xl p-4 mb-6 flex items-center justify-center gap-2">
               <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-[#7C5DF9]"></div>
@@ -1008,7 +942,6 @@ function GameManagement() {
             </div>
           )}
 
-          {/* Error Message */}
           {error && (
             <div className="bg-red-500/20 border border-red-500/30 rounded-3xl p-4 mb-6 text-center">
               <p className="text-red-200 flex items-center justify-center gap-2">
@@ -1024,14 +957,12 @@ function GameManagement() {
             </div>
           )}
 
-          {/* Loading Indicator */}
           {loading && !isSearching && (
             <div className="flex justify-center items-center h-64">
               <Loader size="large" logoSize="small" />
             </div>
           )}
 
-          {/* Games Table */}
           {!loading && !error && (
             <div className="bg-white/5 border border-white/10 rounded-3xl overflow-hidden">
               {filteredGames.length === 0 ? (
